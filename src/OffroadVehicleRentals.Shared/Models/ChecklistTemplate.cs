@@ -10,7 +10,7 @@ public enum ChecklistType
 public class ChecklistTemplate
 {
     public int Id { get; set; }
-    public required string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public ChecklistType Type { get; set; }
     public VehicleType? VehicleType { get; set; }
     public bool IsActive { get; set; }
@@ -24,9 +24,9 @@ public class ChecklistTemplateItem
 {
     public int Id { get; set; }
     public int ChecklistTemplateId { get; set; }
-    public required string ItemText { get; set; }
+    public string ItemText { get; set; } = string.Empty;
     public int SortOrder { get; set; }
     public bool IsRequired { get; set; }
 
-    public ChecklistTemplate Template { get; set; } = null!;
+    public ChecklistTemplate? Template { get; set; }
 }

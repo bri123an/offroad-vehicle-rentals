@@ -6,7 +6,7 @@ public class ChecklistItem
     public int? RentalId { get; set; }
     public int? VehicleId { get; set; }
     public ChecklistType Type { get; set; }
-    public required string ItemText { get; set; }
+    public string ItemText { get; set; } = string.Empty;
     public bool IsCompleted { get; set; }
     public DateTime? CompletedDate { get; set; }
     public string? CompletedBy { get; set; }

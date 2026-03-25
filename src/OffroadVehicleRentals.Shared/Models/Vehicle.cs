@@ -3,9 +3,9 @@ namespace OffroadVehicleRentals.Shared.Models;
 public class Vehicle
 {
     public int Id { get; set; }
-    public required string VehicleNumber { get; set; }
-    public required string Make { get; set; }
-    public required string Model { get; set; }
+    public string VehicleNumber { get; set; } = string.Empty;
+    public string Make { get; set; } = string.Empty;
+    public string Model { get; set; } = string.Empty;
     public int Year { get; set; }
     public VehicleType Type { get; set; }
     public VehicleStatus Status { get; set; }

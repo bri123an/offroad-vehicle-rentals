@@ -4,7 +4,7 @@ public class Rental
 {
     public int Id { get; set; }
     public int VehicleId { get; set; }
-    public required string CustomerName { get; set; }
+    public string CustomerName { get; set; } = string.Empty;
     public string? CustomerPhone { get; set; }
     public string? CustomerEmail { get; set; }
     public DateTime StartDate { get; set; }
@@ -19,6 +19,6 @@ public class Rental
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
 
-    public Vehicle Vehicle { get; set; } = null!;
+    public Vehicle? Vehicle { get; set; }
     public ICollection<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
 }

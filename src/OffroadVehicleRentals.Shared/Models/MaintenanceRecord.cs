@@ -5,7 +5,7 @@ public class MaintenanceRecord
     public int Id { get; set; }
     public int VehicleId { get; set; }
     public DateTime MaintenanceDate { get; set; }
-    public required string MaintenanceType { get; set; }
+    public string MaintenanceType { get; set; } = string.Empty;
     public string? Description { get; set; }
     public decimal HoursAtMaintenance { get; set; }
     public decimal MileageAtMaintenance { get; set; }
@@ -15,5 +15,5 @@ public class MaintenanceRecord
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
 
-    public Vehicle Vehicle { get; set; } = null!;
+    public Vehicle? Vehicle { get; set; }
 }

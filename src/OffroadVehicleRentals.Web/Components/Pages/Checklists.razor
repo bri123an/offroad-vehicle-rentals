@@ -8,19 +8,6 @@
 
 <h1>Daily and Rental Checklists</h1>
 
-@if (dailyTemplates != null)
-{
-    <div class="alert alert-info">
-        <strong>Debug:</strong> Loaded @dailyTemplates.Count templates
-    </div>
-}
-else
-{
-    <div class="alert alert-warning">
-        <strong>Debug:</strong> Templates are NULL
-    </div>
-}
-
 <div class="row mb-4">
     <div class="col-md-6">
         <div class="card">
@@ -170,36 +157,17 @@ else
     {
         try
         {
-            Console.WriteLine("LoadData: Starting to load data...");
             vehicles = await ApiService.GetVehiclesAsync();
-            Console.WriteLine($"LoadData: Loaded {vehicles?.Count ?? 0} vehicles");
-
             upcomingRentals = await ApiService.GetUpcomingRentalsAsync();
-            Console.WriteLine($"LoadData: Loaded {upcomingRentals?.Count ?? 0} rentals");
-
             allTemplates = await ApiService.GetChecklistTemplatesAsync();
-            Console.WriteLine($"LoadData: Loaded {allTemplates?.Count ?? 0} templates");
-
-            if (allTemplates != null && allTemplates.Any())
-            {
-                foreach (var t in allTemplates)
-                {
-                    Console.WriteLine($"  Template: Id={t.Id}, Name={t.Name}, Type={t.Type}");
-                }
-            }
 
             // Show all templates for daily inspection, not just DailyInspection type
             // This allows using PreRental templates for daily checks too
             dailyTemplates = allTemplates;
-            Console.WriteLine($"LoadData: dailyTemplates set with {dailyTemplates?.Count ?? 0} templates");
-
-            // Force UI update
-            StateHasChanged();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading data: {ex.Message}");
-            Console.WriteLine($"Stack trace: {ex.StackTrace}");
             allTemplates = new List<ChecklistTemplate>();
             dailyTemplates = new List<ChecklistTemplate>();
         }
