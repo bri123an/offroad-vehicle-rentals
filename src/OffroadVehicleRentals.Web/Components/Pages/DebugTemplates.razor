@@ -1,0 +1,109 @@
+@page "/debug-templates"
+@using OffroadVehicleRentals.Shared.Models
+@using OffroadVehicleRentals.Web.Services
+@inject ApiService ApiService
+@rendermode InteractiveServer
+
+<PageTitle>Debug Templates</PageTitle>
+
+<h1>Debug Templates</h1>
+
+<button class="btn btn-primary mb-3" @onclick="LoadTemplates">Load Templates</button>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">
+        <h4>Error:</h4>
+        <pre>@errorMessage</pre>
+    </div>
+}
+
+@if (rawJson != null)
+{
+    <div class="card mb-3">
+        <div class="card-header">Raw JSON Response</div>
+        <div class="card-body">
+            <pre>@rawJson</pre>
+        </div>
+    </div>
+}
+
+@if (templates != null)
+{
+    <div class="card">
+        <div class="card-header">Parsed Templates (Count: @templates.Count)</div>
+        <div class="card-body">
+            @if (templates.Count == 0)
+            {
+                <p class="text-warning">No templates loaded!</p>
+            }
+            else
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Vehicle Type</th>
+                            <th>Items Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var template in templates)
+                        {
+                            <tr>
+                                <td>@template.Id</td>
+                                <td>@template.Name</td>
+                                <td>@template.Type</td>
+                                <td>@template.VehicleType</td>
+                                <td>@template.TemplateItems.Count</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<ChecklistTemplate>? templates;
+    private string? rawJson;
+    private string? errorMessage;
+    private bool isLoading = false;
+
+    private async Task LoadTemplates()
+    {
+        isLoading = true;
+        errorMessage = null;
+        rawJson = null;
+        templates = null;
+        StateHasChanged();
+
+        try
+        {
+            // Use ApiService to load templates
+            templates = await ApiService.GetChecklistTemplatesAsync();
+            rawJson = $"Templates loaded: {templates?.Count ?? 0}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Exception: {ex.Message}\n\nStack Trace:\n{ex.StackTrace}";
+            if (ex.InnerException != null)
+            {
+                errorMessage += $"\n\nInner Exception: {ex.InnerException.Message}";
+            }
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}
