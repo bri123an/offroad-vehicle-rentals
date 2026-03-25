@@ -9,3 +9,4 @@
 /Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Release/net8.0/refint/OffroadVehicleRentals.Shared.dll
 /Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Release/net8.0/OffroadVehicleRentals.Shared.pdb
 /Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Release/net8.0/ref/OffroadVehicleRentals.Shared.dll
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Release/net8.0/OffroadVehicleRentals.Shared.sourcelink.json

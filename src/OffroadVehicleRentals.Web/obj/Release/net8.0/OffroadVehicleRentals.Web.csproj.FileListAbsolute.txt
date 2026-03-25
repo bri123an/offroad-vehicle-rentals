@@ -34,9 +34,4 @@
 /Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/obj/Release/net8.0/OffroadV.E87EB486.Up2Date
 /Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/obj/Release/net8.0/OffroadVehicleRentals.Web.genruntimeconfig.cache
 /Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/obj/Release/net8.0/ref/OffroadVehicleRentals.Web.dll
-/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/bin/Release/net8.0/publish/web.config
-/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/bin/Release/net8.0/publish/appsettings.Development.json
-/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/bin/Release/net8.0/publish/appsettings.json
-/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/bin/Release/net8.0/publish/OffroadVehicleRentals.Web.deps.json
-/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/bin/Release/net8.0/publish/OffroadVehicleRentals.Web.runtimeconfig.json
-/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/bin/Release/net8.0/publish/OffroadVehicleRentals.Web.staticwebassets.endpoints.json
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/obj/Release/net8.0/OffroadVehicleRentals.Web.sourcelink.json
