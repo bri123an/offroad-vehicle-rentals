@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Database Initialization Script for Azure SQL
+# This script initializes the OffroadVehicleRentals database
+
+SERVER="offroad-vehicle-sql.database.windows.net"
+DATABASE="OffroadVehicleRentals"
+USERNAME="sqladmin"
+PASSWORD="OffRoad2024!Secure"
+SQL_FILE="src/OffroadVehicleRentals.Api/Data/DbInitializer.sql"
+
+echo "Initializing database: $DATABASE on server: $SERVER"
+echo ""
+echo "Please run the SQL script manually using one of these options:"
+echo ""
+echo "Option 1: Azure Portal Query Editor"
+echo "  1. Go to: https://portal.azure.com"
+echo "  2. Navigate to: SQL databases > OffroadVehicleRentals"
+echo "  3. Click 'Query editor (preview)' in the left menu"
+echo "  4. Login with:"
+echo "     - Login: $USERNAME"
+echo "     - Password: $PASSWORD"
+echo "  5. Copy and paste the contents of: $SQL_FILE"
+echo "  6. Click 'Run'"
+echo ""
+echo "Option 2: Using sqlcmd (if installed)"
+echo "  sqlcmd -S $SERVER -d $DATABASE -U $USERNAME -P \"$PASSWORD\" -i \"$SQL_FILE\" -C"
+echo ""
+echo "Option 3: Using Azure Data Studio"
+echo "  1. Download from: https://aka.ms/azuredatastudio"
+echo "  2. Connect to: $SERVER"
+echo "  3. Open: $SQL_FILE"
+echo "  4. Execute the script"
+echo ""
+echo "After initialization, test your application at:"
+echo "  - Web App: https://offroad-vehicle-web.azurewebsites.net"
+echo "  - API: https://offroad-vehicle-api.azurewebsites.net/api/vehicles"

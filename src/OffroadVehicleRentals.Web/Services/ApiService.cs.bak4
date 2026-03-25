@@ -1,0 +1,245 @@
+using OffroadVehicleRentals.Shared.Models;
+using System.Text.Json;
+using System.Text;
+
+namespace OffroadVehicleRentals.Web.Services;
+
+public class ApiService
+{
+    private readonly HttpClient _httpClient;
+    private readonly IConfiguration _configuration;
+    private readonly string _functionKey;
+
+    public ApiService(HttpClient httpClient, IConfiguration configuration)
+    {
+        _httpClient = httpClient;
+        _configuration = configuration;
+
+        var apimBaseUrl = _configuration["ApimBaseUrl"];
+        var subscriptionKey = _configuration["ApimSubscriptionKey"];
+        _functionKey = _configuration["FunctionAppKey"] ?? _configuration["ApimSubscriptionKey"] ?? "";
+
+        if (!string.IsNullOrEmpty(apimBaseUrl))
+        {
+            _httpClient.BaseAddress = new Uri(apimBaseUrl);
+        }
+
+        if (!string.IsNullOrEmpty(subscriptionKey) && subscriptionKey != "none")
+        {
+            _httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
+        }
+    }
+
+    private string AddFunctionKey(string url)
+    {
+        if (string.IsNullOrEmpty(_functionKey) || _functionKey == "none")
+            return url;
+
+        var separator = url.Contains('?') ? "&" : "?";
+        return $"{url}{separator}code={_functionKey}";
+    }
+
+    // Vehicle Methods
+    public async Task<List<Vehicle>> GetVehiclesAsync()
+    {
+        var response = await _httpClient.GetAsync(AddFunctionKey("/vehicles"));
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<Vehicle>>() ?? new List<Vehicle>();
+    }
+
+    public async Task<Vehicle?> GetVehicleAsync(int id)
+    {
+        var response = await _httpClient.GetAsync($"/vehicles/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<Vehicle>();
+        }
+        return null;
+    }
+
+    public async Task<List<Vehicle>> GetAvailableVehiclesAsync()
+    {
+        var response = await _httpClient.GetAsync(AddFunctionKey("/vehicles/available"));
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<Vehicle>>() ?? new List<Vehicle>();
+    }
+
+    public async Task<Vehicle> CreateVehicleAsync(Vehicle vehicle)
+    {
+        var response = await _httpClient.PostAsJsonAsync(AddFunctionKey("/vehicles"), vehicle);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<Vehicle>() ?? vehicle;
+    }
+
+    public async Task<Vehicle> UpdateVehicleAsync(int id, Vehicle vehicle)
+    {
+        var response = await _httpClient.PutAsJsonAsync($"/vehicles/{id}", vehicle);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<Vehicle>() ?? vehicle;
+    }
+
+    public async Task DeleteVehicleAsync(int id)
+    {
+        var response = await _httpClient.DeleteAsync($"/vehicles/{id}");
+        response.EnsureSuccessStatusCode();
+    }
+
+    // Rental Methods
+    public async Task<List<Rental>> GetRentalsAsync()
+    {
+        var response = await _httpClient.GetAsync(AddFunctionKey("/rentals"));
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<Rental>>() ?? new List<Rental>();
+    }
+
+    public async Task<Rental?> GetRentalAsync(int id)
+    {
+        var response = await _httpClient.GetAsync($"/rentals/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<Rental>();
+        }
+        return null;
+    }
+
+    public async Task<List<Rental>> GetUpcomingRentalsAsync()
+    {
+        var response = await _httpClient.GetAsync(AddFunctionKey("/rentals/upcoming"));
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<Rental>>() ?? new List<Rental>();
+    }
+
+    public async Task<List<Rental>> GetActiveRentalsAsync()
+    {
+        var response = await _httpClient.GetAsync(AddFunctionKey("/rentals/active"));
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<Rental>>() ?? new List<Rental>();
+    }
+
+    public async Task<Rental> CreateRentalAsync(Rental rental)
+    {
+        var response = await _httpClient.PostAsJsonAsync(AddFunctionKey("/rentals"), rental);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<Rental>() ?? rental;
+    }
+
+    public async Task<Rental> UpdateRentalAsync(int id, Rental rental)
+    {
+        var response = await _httpClient.PutAsJsonAsync($"/rentals/{id}", rental);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<Rental>() ?? rental;
+    }
+
+    public async Task DeleteRentalAsync(int id)
+    {
+        var response = await _httpClient.DeleteAsync($"/rentals/{id}");
+        response.EnsureSuccessStatusCode();
+    }
+
+    // Maintenance Methods
+    public async Task<List<MaintenanceRecord>> GetMaintenanceRecordsAsync()
+    {
+        var response = await _httpClient.GetAsync(AddFunctionKey("/maintenance"));
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<MaintenanceRecord>>() ?? new List<MaintenanceRecord>();
+    }
+
+    public async Task<List<MaintenanceRecord>> GetVehicleMaintenanceRecordsAsync(int vehicleId)
+    {
+        var response = await _httpClient.GetAsync($"/vehicles/{vehicleId}/maintenance");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<MaintenanceRecord>>() ?? new List<MaintenanceRecord>();
+    }
+
+    public async Task<MaintenanceRecord> CreateMaintenanceRecordAsync(MaintenanceRecord record)
+    {
+        var response = await _httpClient.PostAsJsonAsync(AddFunctionKey("/maintenance"), record);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<MaintenanceRecord>() ?? record;
+    }
+
+    public async Task<MaintenanceRecord> UpdateMaintenanceRecordAsync(int id, MaintenanceRecord record)
+    {
+        var response = await _httpClient.PutAsJsonAsync($"/maintenance/{id}", record);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<MaintenanceRecord>() ?? record;
+    }
+
+    public async Task DeleteMaintenanceRecordAsync(int id)
+    {
+        var response = await _httpClient.DeleteAsync($"/maintenance/{id}");
+        response.EnsureSuccessStatusCode();
+    }
+
+    // Repair Methods
+    public async Task<List<RepairRecord>> GetRepairRecordsAsync()
+    {
+        var response = await _httpClient.GetAsync(AddFunctionKey("/repairs"));
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<RepairRecord>>() ?? new List<RepairRecord>();
+    }
+
+    public async Task<List<RepairRecord>> GetVehicleRepairRecordsAsync(int vehicleId)
+    {
+        var response = await _httpClient.GetAsync($"/vehicles/{vehicleId}/repairs");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<RepairRecord>>() ?? new List<RepairRecord>();
+    }
+
+    public async Task<RepairRecord> CreateRepairRecordAsync(RepairRecord record)
+    {
+        var response = await _httpClient.PostAsJsonAsync(AddFunctionKey("/repairs"), record);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<RepairRecord>() ?? record;
+    }
+
+    public async Task<RepairRecord> UpdateRepairRecordAsync(int id, RepairRecord record)
+    {
+        var response = await _httpClient.PutAsJsonAsync($"/repairs/{id}", record);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<RepairRecord>() ?? record;
+    }
+
+    public async Task DeleteRepairRecordAsync(int id)
+    {
+        var response = await _httpClient.DeleteAsync($"/repairs/{id}");
+        response.EnsureSuccessStatusCode();
+    }
+
+    // Checklist Methods
+    public async Task<List<ChecklistTemplate>> GetChecklistTemplatesAsync()
+    {
+        var response = await _httpClient.GetAsync(AddFunctionKey("/checklist-templates"));
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<ChecklistTemplate>>() ?? new List<ChecklistTemplate>();
+    }
+
+    public async Task<List<ChecklistItem>> GetRentalChecklistItemsAsync(int rentalId)
+    {
+        var response = await _httpClient.GetAsync($"/rentals/{rentalId}/checklist-items");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<ChecklistItem>>() ?? new List<ChecklistItem>();
+    }
+
+    public async Task<List<ChecklistItem>> GetVehicleChecklistItemsAsync(int vehicleId)
+    {
+        var response = await _httpClient.GetAsync($"/vehicles/{vehicleId}/checklist-items");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<ChecklistItem>>() ?? new List<ChecklistItem>();
+    }
+
+    public async Task<List<ChecklistItem>> CreateChecklistItemsFromTemplateAsync(int templateId, int? rentalId, int? vehicleId)
+    {
+        var request = new { TemplateId = templateId, RentalId = rentalId, VehicleId = vehicleId };
+        var response = await _httpClient.PostAsJsonAsync(AddFunctionKey("/checklist-items/from-template"), request);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<ChecklistItem>>() ?? new List<ChecklistItem>();
+    }
+
+    public async Task<ChecklistItem> UpdateChecklistItemAsync(int id, ChecklistItem item)
+    {
+        var response = await _httpClient.PutAsJsonAsync($"/checklist-items/{id}", item);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<ChecklistItem>() ?? item;
+    }
+}

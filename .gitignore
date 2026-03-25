@@ -1,0 +1,99 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Files built by Visual Studio
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Azure Functions
+local.settings.json
+__blobstorage__
+__queuestorage__
+__azurite_db*__.json
+*.azurefunctions/
+
+# Publish folders
+publish/
+PublishProfiles/
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+
+# Node
+node_modules/
+
+# Python
+*.pyc
+__pycache__/
+venv/
+.venv/
+
+# macOS
+.DS_Store
+
+# Log files
+LogFiles/
+deployments/
+
+# Temporary files
+*.zip
+*.bak
+*.swp
+*~
+
+# Connection strings and secrets (keep these out of repo!)
+appsettings.local.json
+secrets.json

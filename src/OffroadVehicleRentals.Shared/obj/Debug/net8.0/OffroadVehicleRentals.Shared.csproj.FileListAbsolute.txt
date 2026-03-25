@@ -1,0 +1,11 @@
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/bin/Debug/net8.0/OffroadVehicleRentals.Shared.deps.json
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/bin/Debug/net8.0/OffroadVehicleRentals.Shared.dll
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/bin/Debug/net8.0/OffroadVehicleRentals.Shared.pdb
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Debug/net8.0/OffroadVehicleRentals.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Debug/net8.0/OffroadVehicleRentals.Shared.AssemblyInfoInputs.cache
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Debug/net8.0/OffroadVehicleRentals.Shared.AssemblyInfo.cs
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Debug/net8.0/OffroadVehicleRentals.Shared.csproj.CoreCompileInputs.cache
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Debug/net8.0/OffroadVehicleRentals.Shared.dll
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Debug/net8.0/refint/OffroadVehicleRentals.Shared.dll
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Debug/net8.0/OffroadVehicleRentals.Shared.pdb
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Debug/net8.0/ref/OffroadVehicleRentals.Shared.dll

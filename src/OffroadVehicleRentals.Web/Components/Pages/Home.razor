@@ -1,0 +1,182 @@
+@page "/"
+@using OffroadVehicleRentals.Shared.Models
+@using OffroadVehicleRentals.Web.Services
+@inject ApiService ApiService
+@rendermode InteractiveServer
+
+<PageTitle>Dashboard</PageTitle>
+
+<h1>Fleet Dashboard</h1>
+
+@if (isLoading)
+{
+    <p><em>Loading dashboard...</em></p>
+}
+else
+{
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Available</h5>
+                    <p class="card-text display-4">@availableCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">In Use</h5>
+                    <p class="card-text display-4">@inUseCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Maintenance</h5>
+                    <p class="card-text display-4">@maintenanceCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Fleet</h5>
+                    <p class="card-text display-4">@totalCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Recent Vehicles</h5>
+                </div>
+                <div class="card-body">
+                    @if (vehicles != null && vehicles.Any())
+                    {
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Vehicle #</th>
+                                    <th>Make/Model</th>
+                                    <th>Hours</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var vehicle in vehicles.Take(5))
+                                {
+                                    <tr>
+                                        <td>@vehicle.VehicleNumber</td>
+                                        <td>@vehicle.Make @vehicle.Model</td>
+                                        <td>@vehicle.CurrentHours.ToString("N1")</td>
+                                        <td><span class="badge bg-@GetStatusColor(vehicle.Status)">@vehicle.Status</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No vehicles found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Upcoming Rentals</h5>
+                </div>
+                <div class="card-body">
+                    @if (upcomingRentals != null && upcomingRentals.Any())
+                    {
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Vehicle</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var rental in upcomingRentals.Take(5))
+                                {
+                                    <tr>
+                                        <td>@rental.CustomerName</td>
+                                        <td>@(vehicles?.FirstOrDefault(v => v.Id == rental.VehicleId)?.VehicleNumber ?? "N/A")</td>
+                                        <td>@rental.StartDate.ToString("MM/dd/yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No upcoming rentals.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Vehicle>? vehicles;
+    private List<Rental>? upcomingRentals;
+    private bool isLoading = true;
+    private int availableCount = 0;
+    private int inUseCount = 0;
+    private int maintenanceCount = 0;
+    private int totalCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardData();
+    }
+
+    private async Task LoadDashboardData()
+    {
+        isLoading = true;
+        try
+        {
+            vehicles = await ApiService.GetVehiclesAsync();
+            upcomingRentals = await ApiService.GetUpcomingRentalsAsync();
+
+            if (vehicles != null)
+            {
+                totalCount = vehicles.Count;
+                availableCount = vehicles.Count(v => v.Status == VehicleStatus.Available);
+                inUseCount = vehicles.Count(v => v.Status == VehicleStatus.InUse);
+                maintenanceCount = vehicles.Count(v => v.Status == VehicleStatus.InMaintenance || v.Status == VehicleStatus.InRepair);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading dashboard: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetStatusColor(VehicleStatus status)
+    {
+        return status switch
+        {
+            VehicleStatus.Available => "success",
+            VehicleStatus.Reserved => "info",
+            VehicleStatus.InUse => "primary",
+            VehicleStatus.InMaintenance => "warning",
+            VehicleStatus.InRepair => "warning",
+            VehicleStatus.OutOfService => "danger",
+            _ => "secondary"
+        };
+    }
+}

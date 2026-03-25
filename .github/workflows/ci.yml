@@ -1,0 +1,54 @@
+name: CI - Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: ./src
+
+    - name: Build Shared
+      run: dotnet build --no-restore --configuration Release
+      working-directory: ./src/OffroadVehicleRentals.Shared
+
+    - name: Build API
+      run: dotnet build --no-restore --configuration Release
+      working-directory: ./src/OffroadVehicleRentals.Api
+
+    - name: Build Web
+      run: dotnet build --no-restore --configuration Release
+      working-directory: ./src/OffroadVehicleRentals.Web
+
+    - name: Test
+      run: dotnet test --no-build --configuration Release --verbosity normal
+      working-directory: ./src
+      continue-on-error: true
+
+    - name: Upload build artifacts - API
+      uses: actions/upload-artifact@v4
+      with:
+        name: api-build
+        path: ./src/OffroadVehicleRentals.Api/bin/Release/net8.0/
+        retention-days: 1
+
+    - name: Upload build artifacts - Web
+      uses: actions/upload-artifact@v4
+      with:
+        name: web-build
+        path: ./src/OffroadVehicleRentals.Web/bin/Release/net8.0/
+        retention-days: 1

@@ -1,0 +1,9 @@
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/publish/OffroadVehicleRentals.Web
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/publish/appsettings.Development.json
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/publish/appsettings.json
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/publish/OffroadVehicleRentals.Web.dll
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/publish/OffroadVehicleRentals.Web.deps.json
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/publish/OffroadVehicleRentals.Web.runtimeconfig.json
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/publish/OffroadVehicleRentals.Web.pdb
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/publish/OffroadVehicleRentals.Shared.dll
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Web/publish/OffroadVehicleRentals.Shared.pdb

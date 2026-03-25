@@ -1,0 +1,299 @@
+@page "/checklists"
+@using OffroadVehicleRentals.Shared.Models
+@using OffroadVehicleRentals.Web.Services
+@inject ApiService ApiService
+@rendermode InteractiveServer
+
+<PageTitle>Checklists</PageTitle>
+
+<h1>Daily & Rental Checklists</h1>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Daily Inspection</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Vehicle</label>
+                    <select class="form-select" @onchange="OnDailyVehicleChanged">
+                        <option value="">-- Select Vehicle --</option>
+                        @if (vehicles != null)
+                        {
+                            @foreach (var vehicle in vehicles)
+                            {
+                                <option value="@vehicle.Id">@vehicle.VehicleNumber - @vehicle.Make @vehicle.Model</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                @if (selectedDailyVehicleId > 0)
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Checklist Template</label>
+                        <select class="form-select" @bind="selectedDailyTemplateId">
+                            <option value="0">-- Select Template --</option>
+                            @if (dailyTemplates != null)
+                            {
+                                @foreach (var template in dailyTemplates)
+                                {
+                                    <option value="@template.Id">@template.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" @onclick="CreateDailyChecklist" disabled="@(selectedDailyTemplateId == 0)">
+                        Start Daily Inspection
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Rental Checklists</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Rental</label>
+                    <select class="form-select" @onchange="OnRentalChanged">
+                        <option value="">-- Select Rental --</option>
+                        @if (upcomingRentals != null)
+                        {
+                            @foreach (var rental in upcomingRentals)
+                            {
+                                <option value="@rental.Id">@rental.CustomerName - @rental.Vehicle?.VehicleNumber (@rental.StartDate.ToLocalTime().ToString("g"))</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                @if (selectedRentalId > 0)
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Checklist Type</label>
+                        <select class="form-select" @bind="selectedRentalChecklistType">
+                            <option value="1">Pre-Rental</option>
+                            <option value="2">Post-Rental</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-success" @onclick="CreateRentalChecklist">
+                        Start Rental Checklist
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (currentChecklistItems != null && currentChecklistItems.Any())
+{
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">@currentChecklistTitle</h5>
+        </div>
+        <div class="card-body">
+            @foreach (var item in currentChecklistItems)
+            {
+                <div class="form-check mb-3 p-3 @(item.IsCompleted ? "bg-light" : "border")">
+                    <input class="form-check-input" type="checkbox"
+                           checked="@item.IsCompleted"
+                           @onchange="() => ToggleChecklistItem(item)"
+                           id="check-@item.Id">
+                    <label class="form-check-label" for="check-@item.Id">
+                        @item.ItemText
+                    </label>
+                    @if (item.IsCompleted)
+                    {
+                        <div class="text-muted small mt-1">
+                            Completed @(item.CompletedDate?.ToLocalTime().ToString("g"))
+                            @if (!string.IsNullOrEmpty(item.CompletedBy))
+                            {
+                                <text> by @item.CompletedBy</text>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            <div class="mt-4">
+                <button class="btn btn-primary" @onclick="CompleteChecklist"
+                        disabled="@(!currentChecklistItems.All(i => i.IsCompleted))">
+                    Complete Checklist
+                </button>
+                <button class="btn btn-secondary ms-2" @onclick="CancelChecklist">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Vehicle>? vehicles;
+    private List<Rental>? upcomingRentals;
+    private List<ChecklistTemplate>? dailyTemplates;
+    private List<ChecklistTemplate>? allTemplates;
+    private List<ChecklistItem>? currentChecklistItems;
+
+    private int selectedDailyVehicleId = 0;
+    private int selectedDailyTemplateId = 0;
+    private int selectedRentalId = 0;
+    private int selectedRentalChecklistType = 1;
+    private string currentChecklistTitle = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            vehicles = await ApiService.GetVehiclesAsync();
+            upcomingRentals = await ApiService.GetUpcomingRentalsAsync();
+            allTemplates = await ApiService.GetChecklistTemplatesAsync();
+            // Show all templates for daily inspection, not just DailyInspection type
+            // This allows using PreRental templates for daily checks too
+            dailyTemplates = allTemplates;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+            allTemplates = new List<ChecklistTemplate>();
+            dailyTemplates = new List<ChecklistTemplate>();
+        }
+    }
+
+    private void OnDailyVehicleChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var vehicleId))
+        {
+            selectedDailyVehicleId = vehicleId;
+            selectedDailyTemplateId = 0;
+
+            // Auto-select appropriate template based on vehicle type
+            if (vehicles != null && dailyTemplates != null)
+            {
+                var vehicle = vehicles.FirstOrDefault(v => v.Id == vehicleId);
+                if (vehicle != null)
+                {
+                    var matchingTemplate = dailyTemplates
+                        .FirstOrDefault(t => t.VehicleType == vehicle.Type);
+                    if (matchingTemplate != null)
+                    {
+                        selectedDailyTemplateId = matchingTemplate.Id;
+                    }
+                }
+            }
+        }
+    }
+
+    private void OnRentalChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var rentalId))
+        {
+            selectedRentalId = rentalId;
+        }
+    }
+
+    private async Task CreateDailyChecklist()
+    {
+        if (selectedDailyVehicleId == 0 || selectedDailyTemplateId == 0) return;
+
+        try
+        {
+            currentChecklistItems = await ApiService.CreateChecklistItemsFromTemplateAsync(
+                selectedDailyTemplateId, null, selectedDailyVehicleId);
+
+            var vehicle = vehicles?.FirstOrDefault(v => v.Id == selectedDailyVehicleId);
+            currentChecklistTitle = $"Daily Inspection - {vehicle?.VehicleNumber}";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating checklist: {ex.Message}");
+        }
+    }
+
+    private async Task CreateRentalChecklist()
+    {
+        if (selectedRentalId == 0) return;
+
+        try
+        {
+            var rental = upcomingRentals?.FirstOrDefault(r => r.Id == selectedRentalId);
+            if (rental == null) return;
+
+            var checklistType = (ChecklistType)selectedRentalChecklistType;
+
+            // Find matching template based on type and vehicle type
+            var template = allTemplates?.FirstOrDefault(t =>
+                t.Type == checklistType &&
+                (t.VehicleType == rental.Vehicle?.Type || t.VehicleType == null));
+
+            // If no exact match, try any template of the right type
+            if (template == null)
+            {
+                template = allTemplates?.FirstOrDefault(t => t.Type == checklistType);
+            }
+
+            if (template != null)
+            {
+                currentChecklistItems = await ApiService.CreateChecklistItemsFromTemplateAsync(
+                    template.Id, selectedRentalId, rental.VehicleId);
+
+                currentChecklistTitle = $"{(checklistType == ChecklistType.PreRental ? "Pre" : "Post")}-Rental Checklist - {rental.CustomerName}";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating rental checklist: {ex.Message}");
+        }
+    }
+
+    private async Task ToggleChecklistItem(ChecklistItem item)
+    {
+        item.IsCompleted = !item.IsCompleted;
+        item.CompletedDate = item.IsCompleted ? DateTime.UtcNow : null;
+        item.CompletedBy = item.IsCompleted ? "Current User" : null; // TODO: Get actual user
+
+        try
+        {
+            await ApiService.UpdateChecklistItemAsync(item.Id, item);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating checklist item: {ex.Message}");
+            // Revert on error
+            item.IsCompleted = !item.IsCompleted;
+        }
+    }
+
+    private async Task CompleteChecklist()
+    {
+        // All items are completed, clear the current checklist
+        currentChecklistItems = null;
+        currentChecklistTitle = "";
+        selectedDailyVehicleId = 0;
+        selectedDailyTemplateId = 0;
+        selectedRentalId = 0;
+
+        await LoadData();
+    }
+
+    private void CancelChecklist()
+    {
+        currentChecklistItems = null;
+        currentChecklistTitle = "";
+        selectedDailyVehicleId = 0;
+        selectedDailyTemplateId = 0;
+        selectedRentalId = 0;
+    }
+}

@@ -1,0 +1,416 @@
+@page "/maintenance"
+@using OffroadVehicleRentals.Shared.Models
+@using OffroadVehicleRentals.Web.Services
+@inject ApiService ApiService
+@rendermode InteractiveServer
+
+<PageTitle>Maintenance & Repairs</PageTitle>
+
+<h1>Maintenance & Repair Tracking</h1>
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(activeTab == "maintenance" ? "active" : "")" @onclick='() => SetActiveTab("maintenance")' style="cursor: pointer;">
+            Maintenance Records
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(activeTab == "repairs" ? "active" : "")" @onclick='() => SetActiveTab("repairs")' style="cursor: pointer;">
+            Repair Records
+        </a>
+    </li>
+</ul>
+
+<div class="mb-3">
+    @if (activeTab == "maintenance")
+    {
+        <button class="btn btn-primary" @onclick="ShowAddMaintenanceForm">
+            <i class="bi bi-plus-circle"></i> Add Maintenance Record
+        </button>
+    }
+    else
+    {
+        <button class="btn btn-primary" @onclick="ShowAddRepairForm">
+            <i class="bi bi-plus-circle"></i> Add Repair Record
+        </button>
+    }
+</div>
+
+@if (activeTab == "maintenance")
+{
+    @if (isLoadingMaintenance)
+    {
+        <p><em>Loading maintenance records...</em></p>
+    }
+    else if (maintenanceRecords == null || !maintenanceRecords.Any())
+    {
+        <p><em>No maintenance records found.</em></p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Vehicle</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Hours</th>
+                        <th>Mileage</th>
+                        <th>Cost</th>
+                        <th>Performed By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var record in maintenanceRecords)
+                    {
+                        <tr>
+                            <td>@record.MaintenanceDate.ToLocalTime().ToString("d")</td>
+                            <td>@record.Vehicle?.VehicleNumber</td>
+                            <td>@record.MaintenanceType</td>
+                            <td>@record.Description</td>
+                            <td>@record.HoursAtMaintenance.ToString("N2")</td>
+                            <td>@record.MileageAtMaintenance.ToString("N2")</td>
+                            <td>@(record.Cost.HasValue ? record.Cost.Value.ToString("C") : "-")</td>
+                            <td>@record.PerformedBy</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+else
+{
+    @if (isLoadingRepairs)
+    {
+        <p><em>Loading repair records...</em></p>
+    }
+    else if (repairRecords == null || !repairRecords.Any())
+    {
+        <p><em>No repair records found.</em></p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Vehicle</th>
+                        <th>Issue</th>
+                        <th>Repair</th>
+                        <th>Cost</th>
+                        <th>Warranty</th>
+                        <th>Performed By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var record in repairRecords)
+                    {
+                        <tr>
+                            <td>@record.RepairDate.ToLocalTime().ToString("d")</td>
+                            <td>@record.Vehicle?.VehicleNumber</td>
+                            <td>@record.IssueDescription</td>
+                            <td>@record.RepairDescription</td>
+                            <td>@(record.Cost.HasValue ? record.Cost.Value.ToString("C") : "-")</td>
+                            <td>
+                                @if (record.IsWarrantyClaim)
+                                {
+                                    <span class="badge bg-success">Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No</span>
+                                }
+                            </td>
+                            <td>@record.PerformedBy</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@if (showMaintenanceForm)
+{
+    <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Maintenance Record</h5>
+                    <button type="button" class="btn-close" @onclick="CloseMaintenanceForm"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="editingMaintenance" OnValidSubmit="SaveMaintenance">
+                        <div class="mb-3">
+                            <label class="form-label">Vehicle</label>
+                            <InputSelect @bind-Value="editingMaintenance!.VehicleId" class="form-select">
+                                <option value="0">-- Select Vehicle --</option>
+                                @if (vehicles != null)
+                                {
+                                    @foreach (var vehicle in vehicles)
+                                    {
+                                        <option value="@vehicle.Id">@vehicle.VehicleNumber - @vehicle.Make @vehicle.Model</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Maintenance Date</label>
+                                <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="editingMaintenance!.MaintenanceDate" class="form-control" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Maintenance Type</label>
+                                <InputText @bind-Value="editingMaintenance!.MaintenanceType" class="form-control" placeholder="e.g., Oil Change, Air Filter" />
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <InputTextArea @bind-Value="editingMaintenance!.Description" class="form-control" rows="3" />
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Hours at Maintenance</label>
+                                <InputNumber @bind-Value="editingMaintenance!.HoursAtMaintenance" class="form-control" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Mileage at Maintenance</label>
+                                <InputNumber @bind-Value="editingMaintenance!.MileageAtMaintenance" class="form-control" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Cost</label>
+                                <InputNumber @bind-Value="editingMaintenance!.Cost" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Performed By</label>
+                            <InputText @bind-Value="editingMaintenance!.PerformedBy" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <InputTextArea @bind-Value="editingMaintenance!.Notes" class="form-control" rows="2" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseMaintenanceForm">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showRepairForm)
+{
+    <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Repair Record</h5>
+                    <button type="button" class="btn-close" @onclick="CloseRepairForm"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="editingRepair" OnValidSubmit="SaveRepair">
+                        <div class="mb-3">
+                            <label class="form-label">Vehicle</label>
+                            <InputSelect @bind-Value="editingRepair!.VehicleId" class="form-select">
+                                <option value="0">-- Select Vehicle --</option>
+                                @if (vehicles != null)
+                                {
+                                    @foreach (var vehicle in vehicles)
+                                    {
+                                        <option value="@vehicle.Id">@vehicle.VehicleNumber - @vehicle.Make @vehicle.Model</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Repair Date</label>
+                            <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="editingRepair!.RepairDate" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Issue Description</label>
+                            <InputTextArea @bind-Value="editingRepair!.IssueDescription" class="form-control" rows="3" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Repair Description</label>
+                            <InputTextArea @bind-Value="editingRepair!.RepairDescription" class="form-control" rows="3" />
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Cost</label>
+                                <InputNumber @bind-Value="editingRepair!.Cost" class="form-control" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Performed By</label>
+                                <InputText @bind-Value="editingRepair!.PerformedBy" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <InputCheckbox @bind-Value="editingRepair!.IsWarrantyClaim" class="form-check-input" id="warrantyCheck" />
+                            <label class="form-check-label" for="warrantyCheck">
+                                Warranty Claim
+                            </label>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <InputTextArea @bind-Value="editingRepair!.Notes" class="form-control" rows="2" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseRepairForm">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<MaintenanceRecord>? maintenanceRecords;
+    private List<RepairRecord>? repairRecords;
+    private List<Vehicle>? vehicles;
+    private bool isLoadingMaintenance = true;
+    private bool isLoadingRepairs = true;
+    private bool showMaintenanceForm = false;
+    private bool showRepairForm = false;
+    private MaintenanceRecord? editingMaintenance;
+    private RepairRecord? editingRepair;
+    private string activeTab = "maintenance";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        await LoadMaintenanceRecords();
+        await LoadRepairRecords();
+        await LoadVehicles();
+    }
+
+    private async Task LoadMaintenanceRecords()
+    {
+        isLoadingMaintenance = true;
+        try
+        {
+            maintenanceRecords = await ApiService.GetMaintenanceRecordsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading maintenance records: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingMaintenance = false;
+        }
+    }
+
+    private async Task LoadRepairRecords()
+    {
+        isLoadingRepairs = true;
+        try
+        {
+            repairRecords = await ApiService.GetRepairRecordsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading repair records: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingRepairs = false;
+        }
+    }
+
+    private async Task LoadVehicles()
+    {
+        try
+        {
+            vehicles = await ApiService.GetVehiclesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading vehicles: {ex.Message}");
+        }
+    }
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+    }
+
+    private void ShowAddMaintenanceForm()
+    {
+        editingMaintenance = new MaintenanceRecord
+        {
+            MaintenanceType = "",
+            MaintenanceDate = DateTime.Now,
+            HoursAtMaintenance = 0,
+            MileageAtMaintenance = 0
+        };
+        showMaintenanceForm = true;
+    }
+
+    private void ShowAddRepairForm()
+    {
+        editingRepair = new RepairRecord
+        {
+            IssueDescription = "",
+            RepairDescription = "",
+            RepairDate = DateTime.Now
+        };
+        showRepairForm = true;
+    }
+
+    private async Task SaveMaintenance()
+    {
+        if (editingMaintenance == null) return;
+
+        try
+        {
+            await ApiService.CreateMaintenanceRecordAsync(editingMaintenance);
+            await LoadMaintenanceRecords();
+            CloseMaintenanceForm();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving maintenance record: {ex.Message}");
+        }
+    }
+
+    private async Task SaveRepair()
+    {
+        if (editingRepair == null) return;
+
+        try
+        {
+            await ApiService.CreateRepairRecordAsync(editingRepair);
+            await LoadRepairRecords();
+            CloseRepairForm();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving repair record: {ex.Message}");
+        }
+    }
+
+    private void CloseMaintenanceForm()
+    {
+        showMaintenanceForm = false;
+        editingMaintenance = null;
+    }
+
+    private void CloseRepairForm()
+    {
+        showRepairForm = false;
+        editingRepair = null;
+    }
+}
