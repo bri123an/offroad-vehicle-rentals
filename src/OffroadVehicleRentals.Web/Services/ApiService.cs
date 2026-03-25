@@ -212,9 +212,34 @@ public class ApiService
     // Checklist Methods
     public async Task<List<ChecklistTemplate>> GetChecklistTemplatesAsync()
     {
-        var response = await _httpClient.GetAsync(AddFunctionKey("checklist-templates"));
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<List<ChecklistTemplate>>() ?? new List<ChecklistTemplate>();
+        try
+        {
+            var url = AddFunctionKey("checklist-templates");
+            Console.WriteLine($"[API] Calling: {url}");
+
+            var response = await _httpClient.GetAsync(url);
+            Console.WriteLine($"[API] Status: {response.StatusCode}");
+
+            response.EnsureSuccessStatusCode();
+
+            var templates = await response.Content.ReadFromJsonAsync<List<ChecklistTemplate>>();
+            Console.WriteLine($"[API] Deserialized {templates?.Count ?? 0} templates");
+
+            if (templates != null && templates.Any())
+            {
+                foreach (var t in templates.Take(3))
+                {
+                    Console.WriteLine($"[API]   - {t.Id}: {t.Name}");
+                }
+            }
+
+            return templates ?? new List<ChecklistTemplate>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[API] ERROR: {ex.GetType().Name}: {ex.Message}");
+            throw;
+        }
     }
 
     public async Task<List<ChecklistItem>> GetRentalChecklistItemsAsync(int rentalId)

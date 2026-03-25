@@ -108,7 +108,7 @@ public class ChecklistFunctions
 
     [Function("GetRentalChecklistItems")]
     public async Task<HttpResponseData> GetRentalChecklistItems(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "rentals/{rentalId}/checklist-items")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "rentals/{rentalId:int}/checklist-items")] HttpRequestData req,
         int rentalId)
     {
         var items = await _context.ChecklistItems

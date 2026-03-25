@@ -34,7 +34,7 @@ public class RentalFunctions
 
     [Function("GetRental")]
     public async Task<HttpResponseData> GetRental(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "rentals/{id}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "rentals/{id:int}")] HttpRequestData req,
         int id)
     {
         var rental = await _context.Rentals
@@ -135,7 +135,7 @@ public class RentalFunctions
 
     [Function("UpdateRental")]
     public async Task<HttpResponseData> UpdateRental(
-        [HttpTrigger(AuthorizationLevel.Function, "put", Route = "rentals/{id}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Function, "put", Route = "rentals/{id:int}")] HttpRequestData req,
         int id)
     {
         var existingRental = await _context.Rentals.FindAsync(id);
@@ -189,7 +189,7 @@ public class RentalFunctions
 
     [Function("DeleteRental")]
     public async Task<HttpResponseData> DeleteRental(
-        [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "rentals/{id}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "rentals/{id:int}")] HttpRequestData req,
         int id)
     {
         var rental = await _context.Rentals.FindAsync(id);

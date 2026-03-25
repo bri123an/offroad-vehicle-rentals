@@ -6,95 +6,207 @@
 
 <PageTitle>Checklists</PageTitle>
 
-<h1>Daily and Rental Checklists</h1>
+<h1>Checklists</h1>
 
-<div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Daily Inspection</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Select Vehicle</label>
-                    <select class="form-select" @onchange="OnDailyVehicleChanged">
-                        <option value="">-- Select Vehicle --</option>
-                        @if (vehicles != null)
-                        {
-                            @foreach (var vehicle in vehicles)
-                            {
-                                <option value="@vehicle.Id">@vehicle.VehicleNumber - @vehicle.Make @vehicle.Model</option>
-                            }
-                        }
-                    </select>
-                </div>
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "daily" ? "active" : "")" @onclick="SetTabDaily">
+            Daily Inspection
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "rental" ? "active" : "")" @onclick="SetTabRental">
+            Rental Checklists
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "templates" ? "active" : "")" @onclick="SetTabTemplates">
+            Checklist Templates
+        </button>
+    </li>
+</ul>
 
-                @if (selectedDailyVehicleId > 0)
-                {
-                    <div class="mb-3">
-                        <label class="form-label">Checklist Template</label>
-                        <select class="form-select" @bind="selectedDailyTemplateId">
-                            <option value="0">-- Select Template --</option>
-                            @if (dailyTemplates != null)
-                            {
-                                @foreach (var template in dailyTemplates)
-                                {
-                                    <option value="@template.Id">@template.Name</option>
-                                }
-                            }
-                        </select>
-                    </div>
-
-                    <button class="btn btn-primary" @onclick="CreateDailyChecklist" disabled="@(selectedDailyTemplateId == 0)">
-                        Start Daily Inspection
-                    </button>
-                }
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0">Rental Checklists</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Select Rental</label>
-                    <select class="form-select" @onchange="OnRentalChanged">
-                        <option value="">-- Select Rental --</option>
-                        @if (upcomingRentals != null)
-                        {
-                            @foreach (var rental in upcomingRentals)
-                            {
-                                <option value="@rental.Id">@rental.CustomerName - @rental.Vehicle?.VehicleNumber (@rental.StartDate.ToLocalTime().ToString("g"))</option>
-                            }
-                        }
-                    </select>
-                </div>
-
-                @if (selectedRentalId > 0)
-                {
-                    <div class="mb-3">
-                        <label class="form-label">Checklist Type</label>
-                        <select class="form-select" @bind="selectedRentalChecklistType">
-                            <option value="1">Pre-Rental</option>
-                            <option value="2">Post-Rental</option>
-                        </select>
-                    </div>
-
-                    <button class="btn btn-success" @onclick="CreateRentalChecklist">
-                        Start Rental Checklist
-                    </button>
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
-@if (currentChecklistItems != null && currentChecklistItems.Any())
+<!-- Daily Inspection Tab -->
+@if (activeTab == "daily")
 {
     <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Daily Inspection</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Select Vehicle</label>
+                <select class="form-select" @onchange="OnDailyVehicleChanged">
+                    <option value="">-- Select Vehicle --</option>
+                    @if (vehicles != null)
+                    {
+                        @foreach (var vehicle in vehicles)
+                        {
+                            <option value="@vehicle.Id">@vehicle.VehicleNumber - @vehicle.Make @vehicle.Model</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            @if (selectedDailyVehicleId > 0)
+            {
+                <div class="mb-3">
+                    <label class="form-label">Checklist Template</label>
+                    <select class="form-select" @bind="selectedDailyTemplateId">
+                        <option value="0">-- Select Template --</option>
+                        @if (dailyTemplates != null)
+                        {
+                            @foreach (var template in dailyTemplates)
+                            {
+                                <option value="@template.Id">@template.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" @onclick="CreateDailyChecklist" disabled="@(selectedDailyTemplateId == 0)">
+                    Start Daily Inspection
+                </button>
+            }
+        </div>
+    </div>
+}
+
+<!-- Rental Checklists Tab -->
+@if (activeTab == "rental")
+{
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Rental Checklists</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Select Rental</label>
+                <select class="form-select" @onchange="OnRentalChanged">
+                    <option value="">-- Select Rental --</option>
+                    @if (upcomingRentals != null)
+                    {
+                        @foreach (var rental in upcomingRentals)
+                        {
+                            <option value="@rental.Id">@rental.CustomerName - @rental.Vehicle?.VehicleNumber (@rental.StartDate.ToLocalTime().ToString("g"))</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            @if (selectedRentalId > 0)
+            {
+                <div class="mb-3">
+                    <label class="form-label">Checklist Type</label>
+                    <select class="form-select" @bind="selectedRentalChecklistType">
+                        <option value="1">Pre-Rental</option>
+                        <option value="2">Post-Rental</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-success" @onclick="CreateRentalChecklist">
+                    Start Rental Checklist
+                </button>
+            }
+        </div>
+    </div>
+}
+
+<!-- Checklist Templates Tab -->
+@if (activeTab == "templates")
+{
+    <div class="card">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Checklist Templates</h5>
+            <span class="badge bg-light text-dark">@(allTemplates?.Count ?? 0) Templates</span>
+        </div>
+        <div class="card-body">
+            @if (isLoading)
+            {
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading templates...</p>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i> @errorMessage
+                </div>
+            }
+            else if (allTemplates == null || !allTemplates.Any())
+            {
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> No checklist templates found.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var template in allTemplates)
+                    {
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <strong>@template.Name</strong>
+                                    <span class="badge @GetTypeBadgeClass(template.Type)">@template.Type</span>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-2">
+                                        <small class="text-muted">Vehicle Type:</small>
+                                        <span class="badge bg-secondary">@(template.VehicleType?.ToString() ?? "All")</span>
+                                    </p>
+                                    <p class="mb-2">
+                                        <small class="text-muted">Items:</small>
+                                        <span class="badge bg-primary">@template.TemplateItems.Count</span>
+                                    </p>
+                                    
+                                    @if (expandedTemplateId == template.Id)
+                                    {
+                                        <hr />
+                                        <h6>Checklist Items:</h6>
+                                        <ul class="list-group list-group-flush">
+                                            @foreach (var item in template.TemplateItems.OrderBy(i => i.SortOrder))
+                                            {
+                                                <li class="list-group-item d-flex justify-content-between align-items-center py-1 px-0">
+                                                    <small>@item.ItemText</small>
+                                                    @if (item.IsRequired)
+                                                    {
+                                                        <span class="badge bg-danger">Required</span>
+                                                    }
+                                                </li>
+                                            }
+                                        </ul>
+                                        <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="() => expandedTemplateId = 0">
+                                            Hide Items
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => expandedTemplateId = template.Id">
+                                            Show Items
+                                        </button>
+                                    }
+                                </div>
+                                <div class="card-footer text-muted">
+                                    <small>Created: @template.CreatedDate.ToLocalTime().ToString("g")</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Active Checklist Display (shown regardless of tab when active) -->
+@if (currentChecklistItems != null && currentChecklistItems.Any())
+{
+    <div class="card mt-4">
         <div class="card-header">
             <h5 class="mb-0">@currentChecklistTitle</h5>
         </div>
@@ -147,6 +259,22 @@
     private int selectedRentalId = 0;
     private int selectedRentalChecklistType = 1;
     private string currentChecklistTitle = "";
+    private string activeTab = "templates"; // Default to templates tab
+    private int expandedTemplateId = 0;
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    private string GetTypeBadgeClass(ChecklistType type) => type switch
+    {
+        ChecklistType.DailyInspection => "bg-primary",
+        ChecklistType.PreRental => "bg-success",
+        ChecklistType.PostRental => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+
+    private void SetTabDaily() => activeTab = "daily";
+    private void SetTabRental() => activeTab = "rental";
+    private void SetTabTemplates() => activeTab = "templates";
 
     protected override async Task OnInitializedAsync()
     {
@@ -155,21 +283,39 @@
 
     private async Task LoadData()
     {
+        isLoading = true;
+        errorMessage = null;
+        StateHasChanged();
+        
         try
         {
+            Console.WriteLine("[LoadData] Starting...");
             vehicles = await ApiService.GetVehiclesAsync();
+            Console.WriteLine($"[LoadData] Loaded {vehicles?.Count ?? 0} vehicles");
+
             upcomingRentals = await ApiService.GetUpcomingRentalsAsync();
+            Console.WriteLine($"[LoadData] Loaded {upcomingRentals?.Count ?? 0} rentals");
+
             allTemplates = await ApiService.GetChecklistTemplatesAsync();
+            Console.WriteLine($"[LoadData] Loaded {allTemplates?.Count ?? 0} allTemplates");
 
             // Show all templates for daily inspection, not just DailyInspection type
             // This allows using PreRental templates for daily checks too
             dailyTemplates = allTemplates;
+            Console.WriteLine($"[LoadData] Set dailyTemplates to {dailyTemplates?.Count ?? 0} templates");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading data: {ex.Message}");
+            Console.WriteLine($"[LoadData] ERROR: {ex.Message}");
+            Console.WriteLine($"[LoadData] Stack: {ex.StackTrace}");
+            errorMessage = $"Failed to load data: {ex.Message}";
             allTemplates = new List<ChecklistTemplate>();
             dailyTemplates = new List<ChecklistTemplate>();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
 
