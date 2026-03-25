@@ -448,7 +448,7 @@ public class SetupFunctions
                 new Vehicle { VehicleNumber = "ATV-202", Make = "Honda", Model = "Foreman 520", Year = 2024, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 12.7m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
                 new Vehicle { VehicleNumber = "ATV-203", Make = "Honda", Model = "Rancher 420", Year = 2023, Type = VehicleType.FourWheeler, Status = VehicleStatus.InUse, CurrentHours = 189.4m, NextMaintenanceHours = 200.0m, CreatedDate = DateTime.UtcNow },
                 new Vehicle { VehicleNumber = "ATV-204", Make = "Honda", Model = "Foreman 520", Year = 2023, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 98.6m, NextMaintenanceHours = 100.0m, CreatedDate = DateTime.UtcNow },
-                new Vehicle { VehicleNumber = "ATV-205", Make = "Honda", Model = "Rancher 420", Year = 2022, Type = VehicleType.FourWheeler, Status = VehicleStatus.Maintenance, CurrentHours = 312.8m, NextMaintenanceHours = 350.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-205", Make = "Honda", Model = "Rancher 420", Year = 2022, Type = VehicleType.FourWheeler, Status = VehicleStatus.InMaintenance, CurrentHours = 312.8m, NextMaintenanceHours = 350.0m, CreatedDate = DateTime.UtcNow },
 
                 // 4-Wheelers - Yamaha
                 new Vehicle { VehicleNumber = "ATV-301", Make = "Yamaha", Model = "Grizzly 700", Year = 2024, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 5.2m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
@@ -468,7 +468,7 @@ public class SetupFunctions
                 new Vehicle { VehicleNumber = "SXS-201", Make = "Polaris", Model = "RZR XP 1000", Year = 2024, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 9.4m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
                 new Vehicle { VehicleNumber = "SXS-202", Make = "Polaris", Model = "RZR Turbo R", Year = 2024, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 16.7m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
                 new Vehicle { VehicleNumber = "SXS-203", Make = "Polaris", Model = "RZR XP 1000", Year = 2023, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 167.3m, NextMaintenanceHours = 200.0m, CreatedDate = DateTime.UtcNow },
-                new Vehicle { VehicleNumber = "SXS-204", Make = "Polaris", Model = "RZR 900", Year = 2023, Type = VehicleType.SideBySide, Status = VehicleStatus.Maintenance, CurrentHours = 112.8m, NextMaintenanceHours = 150.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-204", Make = "Polaris", Model = "RZR 900", Year = 2023, Type = VehicleType.SideBySide, Status = VehicleStatus.InMaintenance, CurrentHours = 112.8m, NextMaintenanceHours = 150.0m, CreatedDate = DateTime.UtcNow },
                 new Vehicle { VehicleNumber = "SXS-205", Make = "Polaris", Model = "RZR Turbo R", Year = 2022, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 289.5m, NextMaintenanceHours = 300.0m, CreatedDate = DateTime.UtcNow },
 
                 // Side-by-Sides - Yamaha
