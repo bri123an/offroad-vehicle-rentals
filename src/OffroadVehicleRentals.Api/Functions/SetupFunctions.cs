@@ -427,4 +427,70 @@ public class SetupFunctions
             return errorResponse;
         }
     }
+
+    [Function("SeedVehicles")]
+    public async Task<HttpResponseData> SeedVehicles(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "setup/seed-vehicles")] HttpRequestData req)
+    {
+        try
+        {
+            var vehicles = new List<Vehicle>
+            {
+                // 4-Wheelers - Polaris
+                new Vehicle { VehicleNumber = "ATV-101", Make = "Polaris", Model = "Sportsman 570", Year = 2024, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 15.5m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-102", Make = "Polaris", Model = "Sportsman 850", Year = 2024, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 22.3m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-103", Make = "Polaris", Model = "Sportsman 570", Year = 2023, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 145.8m, NextMaintenanceHours = 150.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-104", Make = "Polaris", Model = "Sportsman 450", Year = 2023, Type = VehicleType.FourWheeler, Status = VehicleStatus.InUse, CurrentHours = 67.2m, NextMaintenanceHours = 100.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-105", Make = "Polaris", Model = "Sportsman 850", Year = 2022, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 234.5m, NextMaintenanceHours = 250.0m, CreatedDate = DateTime.UtcNow },
+
+                // 4-Wheelers - Honda
+                new Vehicle { VehicleNumber = "ATV-201", Make = "Honda", Model = "Rancher 420", Year = 2024, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 8.3m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-202", Make = "Honda", Model = "Foreman 520", Year = 2024, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 12.7m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-203", Make = "Honda", Model = "Rancher 420", Year = 2023, Type = VehicleType.FourWheeler, Status = VehicleStatus.InUse, CurrentHours = 189.4m, NextMaintenanceHours = 200.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-204", Make = "Honda", Model = "Foreman 520", Year = 2023, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 98.6m, NextMaintenanceHours = 100.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-205", Make = "Honda", Model = "Rancher 420", Year = 2022, Type = VehicleType.FourWheeler, Status = VehicleStatus.Maintenance, CurrentHours = 312.8m, NextMaintenanceHours = 350.0m, CreatedDate = DateTime.UtcNow },
+
+                // 4-Wheelers - Yamaha
+                new Vehicle { VehicleNumber = "ATV-301", Make = "Yamaha", Model = "Grizzly 700", Year = 2024, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 5.2m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-302", Make = "Yamaha", Model = "Kodiak 450", Year = 2024, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 18.9m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-303", Make = "Yamaha", Model = "Grizzly 700", Year = 2023, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 156.3m, NextMaintenanceHours = 200.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-304", Make = "Yamaha", Model = "Kodiak 450", Year = 2023, Type = VehicleType.FourWheeler, Status = VehicleStatus.InUse, CurrentHours = 87.5m, NextMaintenanceHours = 100.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "ATV-305", Make = "Yamaha", Model = "Grizzly 700", Year = 2022, Type = VehicleType.FourWheeler, Status = VehicleStatus.Available, CurrentHours = 267.4m, NextMaintenanceHours = 300.0m, CreatedDate = DateTime.UtcNow },
+
+                // Side-by-Sides - Can-Am
+                new Vehicle { VehicleNumber = "SXS-101", Make = "Can-Am", Model = "Maverick X3", Year = 2024, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 12.8m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-102", Make = "Can-Am", Model = "Defender HD10", Year = 2024, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 28.5m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-103", Make = "Can-Am", Model = "Maverick Sport", Year = 2023, Type = VehicleType.SideBySide, Status = VehicleStatus.InUse, CurrentHours = 143.7m, NextMaintenanceHours = 150.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-104", Make = "Can-Am", Model = "Defender HD10", Year = 2023, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 76.2m, NextMaintenanceHours = 100.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-105", Make = "Can-Am", Model = "Maverick X3", Year = 2022, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 198.9m, NextMaintenanceHours = 200.0m, CreatedDate = DateTime.UtcNow },
+
+                // Side-by-Sides - Polaris RZR
+                new Vehicle { VehicleNumber = "SXS-201", Make = "Polaris", Model = "RZR XP 1000", Year = 2024, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 9.4m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-202", Make = "Polaris", Model = "RZR Turbo R", Year = 2024, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 16.7m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-203", Make = "Polaris", Model = "RZR XP 1000", Year = 2023, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 167.3m, NextMaintenanceHours = 200.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-204", Make = "Polaris", Model = "RZR 900", Year = 2023, Type = VehicleType.SideBySide, Status = VehicleStatus.Maintenance, CurrentHours = 112.8m, NextMaintenanceHours = 150.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-205", Make = "Polaris", Model = "RZR Turbo R", Year = 2022, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 289.5m, NextMaintenanceHours = 300.0m, CreatedDate = DateTime.UtcNow },
+
+                // Side-by-Sides - Yamaha
+                new Vehicle { VehicleNumber = "SXS-301", Make = "Yamaha", Model = "Wolverine X4", Year = 2024, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 7.6m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-302", Make = "Yamaha", Model = "YXZ1000R", Year = 2024, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 14.2m, NextMaintenanceHours = 50.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-303", Make = "Yamaha", Model = "Wolverine X4", Year = 2023, Type = VehicleType.SideBySide, Status = VehicleStatus.InUse, CurrentHours = 134.9m, NextMaintenanceHours = 150.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-304", Make = "Yamaha", Model = "YXZ1000R", Year = 2023, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 91.3m, NextMaintenanceHours = 100.0m, CreatedDate = DateTime.UtcNow },
+                new Vehicle { VehicleNumber = "SXS-305", Make = "Yamaha", Model = "Wolverine X4", Year = 2022, Type = VehicleType.SideBySide, Status = VehicleStatus.Available, CurrentHours = 245.7m, NextMaintenanceHours = 250.0m, CreatedDate = DateTime.UtcNow }
+            };
+
+            _context.Vehicles.AddRange(vehicles);
+            await _context.SaveChangesAsync();
+
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            await response.WriteStringAsync($"Successfully added {vehicles.Count} vehicles to the database");
+            return response;
+        }
+        catch (Exception ex)
+        {
+            var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+            await errorResponse.WriteStringAsync($"Error: {ex.Message}\n{ex.StackTrace}");
+            return errorResponse;
+        }
+    }
 }
