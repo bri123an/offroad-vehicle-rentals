@@ -8,6 +8,19 @@
 
 <h1>Daily and Rental Checklists</h1>
 
+@if (dailyTemplates != null)
+{
+    <div class="alert alert-info">
+        <strong>Debug:</strong> Loaded @dailyTemplates.Count templates
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <strong>Debug:</strong> Templates are NULL
+    </div>
+}
+
 <div class="row mb-4">
     <div class="col-md-6">
         <div class="card">
@@ -179,6 +192,9 @@
             // This allows using PreRental templates for daily checks too
             dailyTemplates = allTemplates;
             Console.WriteLine($"LoadData: dailyTemplates set with {dailyTemplates?.Count ?? 0} templates");
+
+            // Force UI update
+            StateHasChanged();
         }
         catch (Exception ex)
         {
