@@ -27,8 +27,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Restore dependencies
-      run: dotnet restore
-      working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+      run: dotnet restore OffroadVehicleRentals.sln
 
     - name: Build
       run: dotnet build --configuration Release --no-restore

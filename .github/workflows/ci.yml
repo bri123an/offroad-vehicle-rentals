@@ -19,8 +19,7 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore
-      working-directory: ./src
+      run: dotnet restore OffroadVehicleRentals.sln
 
     - name: Build Shared
       run: dotnet build --no-restore --configuration Release
