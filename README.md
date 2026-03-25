@@ -180,6 +180,17 @@ The application is designed to work with your existing Azure APIM instance. Conf
 - Reporting and analytics dashboard
 - Mobile app support
 
+## CI/CD
+
+This project uses GitHub Actions for continuous integration and deployment:
+
+- **CI Workflow**: Automatically builds and tests on every push/PR
+- **CD Workflows**: Automatically deploys to Azure on push to main branch
+  - API deploys to Azure Functions
+  - Web app deploys to Azure App Service
+
+See `.github/workflows/` for workflow configurations.
+
 ## Support
 
 For issues or questions, please create an issue in the repository.
