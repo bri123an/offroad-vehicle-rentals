@@ -8,6 +8,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddHttpClient<ApiService>();
+builder.Services.AddScoped<ExcelExportService>();
 
 var app = builder.Build();
 

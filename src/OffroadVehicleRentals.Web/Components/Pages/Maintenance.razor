@@ -2,6 +2,8 @@
 @using OffroadVehicleRentals.Shared.Models
 @using OffroadVehicleRentals.Web.Services
 @inject ApiService ApiService
+@inject ExcelExportService ExcelExportService
+@inject IJSRuntime JS
 @rendermode InteractiveServer
 
 <PageTitle>Maintenance & Repairs</PageTitle>
@@ -27,12 +29,32 @@
         <button class="btn btn-primary" @onclick="ShowAddMaintenanceForm">
             <i class="bi bi-plus-circle"></i> Add Maintenance Record
         </button>
+        @if (maintenanceRecords != null && maintenanceRecords.Any())
+        {
+            <button class="btn btn-success ms-2" @onclick="ExportMaintenanceToExcel" disabled="@isExporting">
+                @if (isExporting)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                }
+                <i class="bi bi-file-earmark-excel"></i> Export to Excel
+            </button>
+        }
     }
     else
     {
         <button class="btn btn-primary" @onclick="ShowAddRepairForm">
             <i class="bi bi-plus-circle"></i> Add Repair Record
         </button>
+        @if (repairRecords != null && repairRecords.Any())
+        {
+            <button class="btn btn-success ms-2" @onclick="ExportRepairsToExcel" disabled="@isExporting">
+                @if (isExporting)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                }
+                <i class="bi bi-file-earmark-excel"></i> Export to Excel
+            </button>
+        }
     }
 </div>
 
@@ -283,6 +305,7 @@ else
     private MaintenanceRecord? editingMaintenance;
     private RepairRecord? editingRepair;
     private string activeTab = "maintenance";
+    private bool isExporting = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -412,5 +435,49 @@ else
     {
         showRepairForm = false;
         editingRepair = null;
+    }
+
+    private async Task ExportMaintenanceToExcel()
+    {
+        if (maintenanceRecords == null || !maintenanceRecords.Any()) return;
+
+        isExporting = true;
+        try
+        {
+            var fileBytes = ExcelExportService.ExportMaintenanceRecords(maintenanceRecords);
+            var fileName = $"MaintenanceRecords_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            using var streamRef = new DotNetStreamReference(new MemoryStream(fileBytes));
+            await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error exporting maintenance records: {ex.Message}");
+        }
+        finally
+        {
+            isExporting = false;
+        }
+    }
+
+    private async Task ExportRepairsToExcel()
+    {
+        if (repairRecords == null || !repairRecords.Any()) return;
+
+        isExporting = true;
+        try
+        {
+            var fileBytes = ExcelExportService.ExportRepairRecords(repairRecords);
+            var fileName = $"RepairRecords_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            using var streamRef = new DotNetStreamReference(new MemoryStream(fileBytes));
+            await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error exporting repair records: {ex.Message}");
+        }
+        finally
+        {
+            isExporting = false;
+        }
     }
 }
