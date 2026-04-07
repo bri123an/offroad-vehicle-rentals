@@ -10,3 +10,6 @@
 /Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Debug/net8.0/refint/OffroadVehicleRentals.Shared.dll
 /Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Debug/net8.0/OffroadVehicleRentals.Shared.pdb
 /Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Shared/obj/Debug/net8.0/ref/OffroadVehicleRentals.Shared.dll
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Api/bin/output/OffroadVehicleRentals.Shared.deps.json
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Api/bin/output/OffroadVehicleRentals.Shared.dll
+/Users/brianhinterlong/RiderProjects/OffroadVehicleRentals/src/OffroadVehicleRentals.Api/bin/output/OffroadVehicleRentals.Shared.pdb
