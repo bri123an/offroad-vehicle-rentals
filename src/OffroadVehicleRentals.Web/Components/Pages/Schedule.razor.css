@@ -1,0 +1,271 @@
+/* ===== Calendar Grid ===== */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.calendar-header {
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+    color: #495057;
+}
+
+.calendar-day {
+    min-height: 110px;
+    border: 1px solid #e9ecef;
+    padding: 0.25rem;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.calendar-day.other-month {
+    background-color: #f8f9fa;
+    color: #adb5bd;
+}
+
+.calendar-day.today {
+    background-color: #e8f4fd;
+}
+
+.calendar-day.today .calendar-day-number {
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.calendar-day-number {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 2px;
+    padding: 1px 4px;
+}
+
+.calendar-events {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.calendar-event {
+    font-size: 0.7rem;
+    padding: 1px 4px;
+    border-radius: 3px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: white;
+    line-height: 1.4;
+    transition: opacity 0.15s;
+}
+
+.calendar-event:hover {
+    opacity: 0.85;
+}
+
+.calendar-event.event-start {
+    border-radius: 3px 0 0 3px;
+    margin-right: -4px;
+}
+
+.calendar-event.event-middle {
+    border-radius: 0;
+    margin-left: -4px;
+    margin-right: -4px;
+}
+
+.calendar-event.event-end {
+    border-radius: 0 3px 3px 0;
+    margin-left: -4px;
+}
+
+.calendar-event.event-single {
+    border-radius: 3px;
+}
+
+.calendar-event-text {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calendar-more {
+    font-size: 0.7rem;
+    color: #6c757d;
+    padding: 1px 4px;
+    cursor: default;
+}
+
+/* Rental status colors */
+.rental-upcoming {
+    background-color: #0d6efd;
+}
+
+.rental-active {
+    background-color: #198754;
+}
+
+.rental-completed {
+    background-color: #6c757d;
+}
+
+/* Legend dot */
+.calendar-legend-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+/* ===== Timeline View ===== */
+.timeline-container {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow-x: auto;
+    min-width: 100%;
+}
+
+.timeline-header-row {
+    display: flex;
+    border-bottom: 2px solid #dee2e6;
+    background: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.timeline-header-row .timeline-vehicle-label {
+    min-width: 150px;
+    max-width: 150px;
+    padding: 0.5rem;
+    border-right: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+.timeline-day-header {
+    flex: 1;
+    min-width: 60px;
+    text-align: center;
+    padding: 0.25rem;
+    border-right: 1px solid #e9ecef;
+    font-size: 0.8rem;
+}
+
+.timeline-day-header.timeline-today {
+    background-color: #e8f4fd;
+}
+
+.timeline-day-header.timeline-weekend {
+    background-color: #f1f1f1;
+}
+
+.timeline-row {
+    display: flex;
+    border-bottom: 1px solid #e9ecef;
+    min-height: 52px;
+}
+
+.timeline-row:hover {
+    background-color: #fafbfc;
+}
+
+.timeline-vehicle-label {
+    min-width: 150px;
+    max-width: 150px;
+    padding: 0.4rem 0.5rem;
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.timeline-cells {
+    display: flex;
+    flex: 1;
+    position: relative;
+}
+
+.timeline-cell {
+    flex: 1;
+    min-width: 60px;
+    border-right: 1px solid #e9ecef;
+}
+
+.timeline-cell.timeline-today {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.timeline-cell.timeline-weekend {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.timeline-bar {
+    position: absolute;
+    top: 6px;
+    height: calc(100% - 12px);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    color: white;
+    font-size: 0.75rem;
+    z-index: 1;
+    transition: opacity 0.15s, transform 0.1s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.timeline-bar:hover {
+    opacity: 0.9;
+    transform: scaleY(1.05);
+    z-index: 2;
+}
+
+.timeline-bar-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .calendar-day {
+        min-height: 70px;
+    }
+
+    .calendar-event {
+        font-size: 0.6rem;
+    }
+
+    .calendar-day-number {
+        font-size: 0.75rem;
+    }
+
+    .timeline-vehicle-label {
+        min-width: 100px;
+        max-width: 100px;
+        font-size: 0.8rem;
+    }
+
+    .timeline-cell,
+    .timeline-day-header {
+        min-width: 45px;
+    }
+}
+

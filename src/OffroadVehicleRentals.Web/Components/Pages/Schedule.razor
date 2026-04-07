@@ -1,0 +1,459 @@
+@page "/schedule"
+@using OffroadVehicleRentals.Shared.Models
+@using OffroadVehicleRentals.Web.Services
+@inject ApiService ApiService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Rental Calendar & Schedule</PageTitle>
+
+<h1>Rental Calendar & Schedule</h1>
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(activeView == "calendar" ? "active" : "")" @onclick='() => activeView = "calendar"' style="cursor: pointer;">
+            <i class="bi bi-calendar3"></i> Calendar View
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(activeView == "timeline" ? "active" : "")" @onclick='() => activeView = "timeline"' style="cursor: pointer;">
+            <i class="bi bi-bar-chart-steps"></i> Timeline View
+        </a>
+    </li>
+</ul>
+
+@if (isLoading)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading schedule...</p>
+    </div>
+}
+else
+{
+    @if (activeView == "calendar")
+    {
+        <!-- Calendar Navigation -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <button class="btn btn-outline-secondary" @onclick="PreviousMonth">
+                <i class="bi bi-chevron-left"></i> Previous
+            </button>
+            <h3 class="mb-0">@currentDate.ToString("MMMM yyyy")</h3>
+            <div>
+                <button class="btn btn-outline-primary me-2" @onclick="GoToToday">Today</button>
+                <button class="btn btn-outline-secondary" @onclick="NextMonth">
+                    Next <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Calendar Legend -->
+        <div class="d-flex gap-3 mb-3 flex-wrap">
+            <span><span class="calendar-legend-dot bg-primary"></span> Upcoming</span>
+            <span><span class="calendar-legend-dot bg-success"></span> Active</span>
+            <span><span class="calendar-legend-dot bg-secondary"></span> Completed</span>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="calendar-grid">
+            <div class="calendar-header">Sun</div>
+            <div class="calendar-header">Mon</div>
+            <div class="calendar-header">Tue</div>
+            <div class="calendar-header">Wed</div>
+            <div class="calendar-header">Thu</div>
+            <div class="calendar-header">Fri</div>
+            <div class="calendar-header">Sat</div>
+
+            @foreach (var day in calendarDays)
+            {
+                <div class="calendar-day @(day.IsCurrentMonth ? "" : "other-month") @(day.IsToday ? "today" : "")">
+                    <div class="calendar-day-number">@day.Date.Day</div>
+                    <div class="calendar-events">
+                        @foreach (var rental in day.Rentals.Take(3))
+                        {
+                            <div class="calendar-event @GetRentalStatusClass(rental) @GetEventPositionClass(rental, day.Date)"
+                                 title="@rental.CustomerName — @rental.Vehicle?.VehicleNumber (@rental.StartDate.ToLocalTime().ToString("g") - @rental.EndDate.ToLocalTime().ToString("g"))"
+                                 @onclick="() => ViewRental(rental.Id)"
+                                 @onclick:stopPropagation="true">
+                                @if (IsRentalStart(rental, day.Date))
+                                {
+                                    <span class="calendar-event-text">@rental.Vehicle?.VehicleNumber — @rental.CustomerName</span>
+                                }
+                                else
+                                {
+                                    <span class="calendar-event-text">&nbsp;</span>
+                                }
+                            </div>
+                        }
+                        @if (day.Rentals.Count > 3)
+                        {
+                            <div class="calendar-more">+@(day.Rentals.Count - 3) more</div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- Timeline View -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <button class="btn btn-outline-secondary" @onclick="PreviousWeek">
+                <i class="bi bi-chevron-left"></i> Previous Week
+            </button>
+            <h3 class="mb-0">@timelineStart.ToString("MMM d") — @timelineEnd.ToString("MMM d, yyyy")</h3>
+            <div>
+                <button class="btn btn-outline-primary me-2" @onclick="GoToThisWeek">This Week</button>
+                <button class="btn btn-outline-secondary" @onclick="NextWeek">
+                    Next Week <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Timeline Legend -->
+        <div class="d-flex gap-3 mb-3 flex-wrap">
+            <span><span class="calendar-legend-dot bg-primary"></span> Upcoming</span>
+            <span><span class="calendar-legend-dot bg-success"></span> Active</span>
+            <span><span class="calendar-legend-dot bg-secondary"></span> Completed</span>
+        </div>
+
+        <div class="timeline-container">
+            <!-- Timeline header row with dates -->
+            <div class="timeline-header-row">
+                <div class="timeline-vehicle-label fw-bold">Vehicle</div>
+                @for (var d = timelineStart; d <= timelineEnd; d = d.AddDays(1))
+                {
+                    <div class="timeline-day-header @(d.Date == DateTime.Today ? "timeline-today" : "") @(d.DayOfWeek == DayOfWeek.Sunday || d.DayOfWeek == DayOfWeek.Saturday ? "timeline-weekend" : "")">
+                        <div class="small">@d.ToString("ddd")</div>
+                        <div class="fw-bold">@d.Day</div>
+                    </div>
+                }
+            </div>
+
+            @if (vehicles != null)
+            {
+                @foreach (var vehicle in vehicles)
+                {
+                    var vehicleRentals = GetVehicleRentalsInRange(vehicle.Id, timelineStart, timelineEnd);
+                    <div class="timeline-row">
+                        <div class="timeline-vehicle-label">
+                            <div class="fw-bold">@vehicle.VehicleNumber</div>
+                            <div class="small text-muted">@vehicle.Make @vehicle.Model</div>
+                        </div>
+                        <div class="timeline-cells">
+                            @for (var d = timelineStart; d <= timelineEnd; d = d.AddDays(1))
+                            {
+                                <div class="timeline-cell @(d.Date == DateTime.Today ? "timeline-today" : "") @(d.DayOfWeek == DayOfWeek.Sunday || d.DayOfWeek == DayOfWeek.Saturday ? "timeline-weekend" : "")"></div>
+                            }
+                            @foreach (var rental in vehicleRentals)
+                            {
+                                var pos = GetTimelinePosition(rental, timelineStart, timelineEnd);
+                                <div class="timeline-bar @GetRentalStatusClass(rental)"
+                                     style="left: @(pos.LeftPercent)%; width: @(pos.WidthPercent)%;"
+                                     title="@rental.CustomerName (@rental.StartDate.ToLocalTime().ToString("g") - @rental.EndDate.ToLocalTime().ToString("g"))"
+                                     @onclick="() => ViewRental(rental.Id)">
+                                    <span class="timeline-bar-text">@rental.CustomerName</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+
+    <!-- Rental Detail Popup -->
+    @if (selectedRental != null)
+    {
+        <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" @onclick="CloseRentalDetail">
+            <div class="modal-dialog" @onclick:stopPropagation="true">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Rental Details</h5>
+                        <button type="button" class="btn-close" @onclick="CloseRentalDetail"></button>
+                    </div>
+                    <div class="modal-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Vehicle</dt>
+                            <dd class="col-sm-8">@selectedRental.Vehicle?.VehicleNumber — @selectedRental.Vehicle?.Make @selectedRental.Vehicle?.Model</dd>
+
+                            <dt class="col-sm-4">Customer</dt>
+                            <dd class="col-sm-8">@selectedRental.CustomerName</dd>
+
+                            @if (!string.IsNullOrEmpty(selectedRental.CustomerPhone))
+                            {
+                                <dt class="col-sm-4">Phone</dt>
+                                <dd class="col-sm-8">@selectedRental.CustomerPhone</dd>
+                            }
+
+                            @if (!string.IsNullOrEmpty(selectedRental.CustomerEmail))
+                            {
+                                <dt class="col-sm-4">Email</dt>
+                                <dd class="col-sm-8">@selectedRental.CustomerEmail</dd>
+                            }
+
+                            <dt class="col-sm-4">Start</dt>
+                            <dd class="col-sm-8">@selectedRental.StartDate.ToLocalTime().ToString("f")</dd>
+
+                            <dt class="col-sm-4">End</dt>
+                            <dd class="col-sm-8">@selectedRental.EndDate.ToLocalTime().ToString("f")</dd>
+
+                            <dt class="col-sm-4">Duration</dt>
+                            <dd class="col-sm-8">@GetDurationText(selectedRental)</dd>
+
+                            <dt class="col-sm-4">Pre-Check</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-@(selectedRental.PreRentalChecklistCompleted ? "success" : "warning")">
+                                    @(selectedRental.PreRentalChecklistCompleted ? "Complete" : "Pending")
+                                </span>
+                            </dd>
+
+                            <dt class="col-sm-4">Post-Check</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-@(selectedRental.PostRentalChecklistCompleted ? "success" : "secondary")">
+                                    @(selectedRental.PostRentalChecklistCompleted ? "Complete" : "Pending")
+                                </span>
+                            </dd>
+
+                            @if (!string.IsNullOrEmpty(selectedRental.Notes))
+                            {
+                                <dt class="col-sm-4">Notes</dt>
+                                <dd class="col-sm-8">@selectedRental.Notes</dd>
+                            }
+                        </dl>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline-primary" @onclick="() => NavigateToRental(selectedRental.Id)">
+                            <i class="bi bi-pencil"></i> Edit Rental
+                        </button>
+                        <button class="btn btn-secondary" @onclick="CloseRentalDetail">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private List<Rental>? rentals;
+    private List<Vehicle>? vehicles;
+    private bool isLoading = true;
+    private string activeView = "calendar";
+    private DateTime currentDate = DateTime.Today;
+    private DateTime timelineStart;
+    private DateTime timelineEnd;
+    private List<CalendarDay> calendarDays = new();
+    private Rental? selectedRental;
+
+    protected override async Task OnInitializedAsync()
+    {
+        SetTimelineWeek(DateTime.Today);
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        try
+        {
+            rentals = await ApiService.GetRentalsAsync();
+            vehicles = await ApiService.GetVehiclesAsync();
+            BuildCalendarDays();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading schedule data: {ex.Message}");
+            rentals = new List<Rental>();
+            vehicles = new List<Vehicle>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // --- Calendar View Logic ---
+
+    private void BuildCalendarDays()
+    {
+        calendarDays.Clear();
+
+        var firstOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
+        var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
+
+        // Start from the Sunday before (or on) the first of the month
+        var calStart = firstOfMonth.AddDays(-(int)firstOfMonth.DayOfWeek);
+        // End on the Saturday after (or on) the last of the month
+        var calEnd = lastOfMonth.AddDays(6 - (int)lastOfMonth.DayOfWeek);
+
+        for (var d = calStart; d <= calEnd; d = d.AddDays(1))
+        {
+            var day = new CalendarDay
+            {
+                Date = d,
+                IsCurrentMonth = d.Month == currentDate.Month && d.Year == currentDate.Year,
+                IsToday = d.Date == DateTime.Today,
+                Rentals = GetRentalsForDay(d)
+            };
+            calendarDays.Add(day);
+        }
+    }
+
+    private List<Rental> GetRentalsForDay(DateTime date)
+    {
+        if (rentals == null) return new List<Rental>();
+        return rentals.Where(r =>
+            r.StartDate.ToLocalTime().Date <= date.Date &&
+            r.EndDate.ToLocalTime().Date >= date.Date
+        ).OrderBy(r => r.StartDate).ToList();
+    }
+
+    private bool IsRentalStart(Rental rental, DateTime date)
+    {
+        var start = rental.StartDate.ToLocalTime().Date;
+        // Show label on start day, or on the first day of the calendar if rental started earlier
+        if (start == date.Date) return true;
+        if (start < calendarDays.First().Date && date == calendarDays.First().Date) return true;
+        // Show label on Sunday if rental spans across weeks
+        if (date.DayOfWeek == DayOfWeek.Sunday && start < date.Date) return true;
+        return false;
+    }
+
+    private string GetEventPositionClass(Rental rental, DateTime date)
+    {
+        var startLocal = rental.StartDate.ToLocalTime().Date;
+        var endLocal = rental.EndDate.ToLocalTime().Date;
+
+        if (startLocal == date.Date && endLocal == date.Date)
+            return "event-single";
+        if (startLocal == date.Date)
+            return "event-start";
+        if (endLocal == date.Date || date.DayOfWeek == DayOfWeek.Saturday)
+            return "event-end";
+        return "event-middle";
+    }
+
+    private void PreviousMonth()
+    {
+        currentDate = currentDate.AddMonths(-1);
+        BuildCalendarDays();
+    }
+
+    private void NextMonth()
+    {
+        currentDate = currentDate.AddMonths(1);
+        BuildCalendarDays();
+    }
+
+    private void GoToToday()
+    {
+        currentDate = DateTime.Today;
+        BuildCalendarDays();
+    }
+
+    // --- Timeline View Logic ---
+
+    private void SetTimelineWeek(DateTime referenceDate)
+    {
+        // Start on Monday
+        var dayOfWeek = (int)referenceDate.DayOfWeek;
+        var monday = referenceDate.AddDays(-(dayOfWeek == 0 ? 6 : dayOfWeek - 1));
+        timelineStart = monday;
+        timelineEnd = monday.AddDays(13); // 2 weeks
+    }
+
+    private void PreviousWeek()
+    {
+        timelineStart = timelineStart.AddDays(-7);
+        timelineEnd = timelineEnd.AddDays(-7);
+    }
+
+    private void NextWeek()
+    {
+        timelineStart = timelineStart.AddDays(7);
+        timelineEnd = timelineEnd.AddDays(7);
+    }
+
+    private void GoToThisWeek()
+    {
+        SetTimelineWeek(DateTime.Today);
+    }
+
+    private List<Rental> GetVehicleRentalsInRange(int vehicleId, DateTime start, DateTime end)
+    {
+        if (rentals == null) return new List<Rental>();
+        return rentals.Where(r =>
+            r.VehicleId == vehicleId &&
+            r.StartDate.ToLocalTime().Date <= end.Date &&
+            r.EndDate.ToLocalTime().Date >= start.Date
+        ).OrderBy(r => r.StartDate).ToList();
+    }
+
+    private (double LeftPercent, double WidthPercent) GetTimelinePosition(Rental rental, DateTime rangeStart, DateTime rangeEnd)
+    {
+        var totalDays = (rangeEnd - rangeStart).TotalDays + 1;
+        var rentalStart = rental.StartDate.ToLocalTime().Date;
+        var rentalEnd = rental.EndDate.ToLocalTime().Date;
+
+        // Clamp to visible range
+        var visibleStart = rentalStart < rangeStart ? rangeStart : rentalStart;
+        var visibleEnd = rentalEnd > rangeEnd ? rangeEnd : rentalEnd;
+
+        var leftDays = (visibleStart - rangeStart).TotalDays;
+        var widthDays = (visibleEnd - visibleStart).TotalDays + 1;
+
+        var leftPct = (leftDays / totalDays) * 100;
+        var widthPct = (widthDays / totalDays) * 100;
+
+        return (leftPct, widthPct);
+    }
+
+    // --- Shared Logic ---
+
+    private string GetRentalStatusClass(Rental rental)
+    {
+        var now = DateTime.UtcNow;
+        if (rental.EndDate < now)
+            return "rental-completed";
+        if (rental.StartDate <= now && rental.EndDate >= now)
+            return "rental-active";
+        return "rental-upcoming";
+    }
+
+    private string GetDurationText(Rental rental)
+    {
+        var duration = rental.EndDate - rental.StartDate;
+        if (duration.TotalDays >= 1)
+        {
+            var days = (int)Math.Ceiling(duration.TotalDays);
+            return $"{days} day{(days != 1 ? "s" : "")}";
+        }
+        return $"{(int)duration.TotalHours}h {duration.Minutes}m";
+    }
+
+    private void ViewRental(int id)
+    {
+        selectedRental = rentals?.FirstOrDefault(r => r.Id == id);
+    }
+
+    private void CloseRentalDetail()
+    {
+        selectedRental = null;
+    }
+
+    private void NavigateToRental(int id)
+    {
+        Navigation.NavigateTo($"/rentals");
+    }
+
+    private class CalendarDay
+    {
+        public DateTime Date { get; set; }
+        public bool IsCurrentMonth { get; set; }
+        public bool IsToday { get; set; }
+        public List<Rental> Rentals { get; set; } = new();
+    }
+}
+
