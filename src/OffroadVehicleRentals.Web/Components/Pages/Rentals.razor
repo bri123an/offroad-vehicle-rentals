@@ -56,9 +56,31 @@ else
                     <th>Post-Check</th>
                     <th>Actions</th>
                 </tr>
+                <tr class="table-light">
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Filter..." @bind="filterRentalVehicle" @bind:event="oninput" /></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Filter..." @bind="filterRentalCustomer" @bind:event="oninput" /></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Filter..." @bind="filterRentalContact" @bind:event="oninput" /></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <select class="form-select form-select-sm" @bind="filterPreCheck">
+                            <option value="">All</option>
+                            <option value="Complete">Complete</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm" @bind="filterPostCheck">
+                            <option value="">All</option>
+                            <option value="Complete">Complete</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </td>
+                    <td></td>
+                </tr>
             </thead>
             <tbody>
-                @foreach (var rental in displayedRentals)
+                @foreach (var rental in FilteredRentals)
                 {
                     <tr>
                         <td>@rental.Vehicle?.VehicleNumber</td>
@@ -186,6 +208,28 @@ else
     private bool showForm = false;
     private Rental? editingRental;
     private string activeTab = "upcoming";
+
+    // Filter fields
+    private string filterRentalVehicle = "";
+    private string filterRentalCustomer = "";
+    private string filterRentalContact = "";
+    private string filterPreCheck = "";
+    private string filterPostCheck = "";
+
+    private IEnumerable<Rental> FilteredRentals =>
+        (displayedRentals ?? new List<Rental>()).Where(r =>
+            (string.IsNullOrEmpty(filterRentalVehicle) || (r.Vehicle?.VehicleNumber ?? "").Contains(filterRentalVehicle, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrEmpty(filterRentalCustomer) || r.CustomerName.Contains(filterRentalCustomer, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrEmpty(filterRentalContact) || 
+                (r.CustomerPhone ?? "").Contains(filterRentalContact, StringComparison.OrdinalIgnoreCase) || 
+                (r.CustomerEmail ?? "").Contains(filterRentalContact, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrEmpty(filterPreCheck) || 
+                (filterPreCheck == "Complete" && r.PreRentalChecklistCompleted) || 
+                (filterPreCheck == "Pending" && !r.PreRentalChecklistCompleted)) &&
+            (string.IsNullOrEmpty(filterPostCheck) || 
+                (filterPostCheck == "Complete" && r.PostRentalChecklistCompleted) || 
+                (filterPostCheck == "Pending" && !r.PostRentalChecklistCompleted))
+        );
 
     protected override async Task OnInitializedAsync()
     {

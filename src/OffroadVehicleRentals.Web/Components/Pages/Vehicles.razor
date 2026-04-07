@@ -38,9 +38,35 @@ else
                     <th>Mileage</th>
                     <th>Actions</th>
                 </tr>
+                <tr class="table-light">
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Filter..." @bind="filterVehicleNumber" @bind:event="oninput" /></td>
+                    <td>
+                        <select class="form-select form-select-sm" @bind="filterType">
+                            <option value="">All</option>
+                            @foreach (var t in Enum.GetValues<VehicleType>())
+                            {
+                                <option value="@t">@t</option>
+                            }
+                        </select>
+                    </td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Filter..." @bind="filterMakeModel" @bind:event="oninput" /></td>
+                    <td><input type="text" class="form-control form-control-sm" placeholder="Filter..." @bind="filterYear" @bind:event="oninput" /></td>
+                    <td>
+                        <select class="form-select form-select-sm" @bind="filterStatus">
+                            <option value="">All</option>
+                            @foreach (var s in Enum.GetValues<VehicleStatus>())
+                            {
+                                <option value="@s">@s</option>
+                            }
+                        </select>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
             </thead>
             <tbody>
-                @foreach (var vehicle in vehicles)
+                @foreach (var vehicle in FilteredVehicles)
                 {
                     <tr>
                         <td>@vehicle.VehicleNumber</td>
@@ -153,6 +179,22 @@ else
     private bool isLoading = true;
     private bool showForm = false;
     private Vehicle? editingVehicle;
+
+    // Filter fields
+    private string filterVehicleNumber = "";
+    private string filterType = "";
+    private string filterMakeModel = "";
+    private string filterYear = "";
+    private string filterStatus = "";
+
+    private IEnumerable<Vehicle> FilteredVehicles =>
+        (vehicles ?? new List<Vehicle>()).Where(v =>
+            (string.IsNullOrEmpty(filterVehicleNumber) || v.VehicleNumber.Contains(filterVehicleNumber, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrEmpty(filterType) || v.Type.ToString() == filterType) &&
+            (string.IsNullOrEmpty(filterMakeModel) || $"{v.Make} {v.Model}".Contains(filterMakeModel, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrEmpty(filterYear) || v.Year.ToString().Contains(filterYear)) &&
+            (string.IsNullOrEmpty(filterStatus) || v.Status.ToString() == filterStatus)
+        );
 
     protected override async Task OnInitializedAsync()
     {
