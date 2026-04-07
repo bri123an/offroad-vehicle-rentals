@@ -97,3 +97,4 @@ deployments/
 # Connection strings and secrets (keep these out of repo!)
 appsettings.local.json
 secrets.json
+test-deserialize.csx
