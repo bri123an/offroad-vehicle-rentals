@@ -1,7 +1,4 @@
 @page "/debug"
-@using OffroadVehicleRentals.Web.Services
-@inject ApiService ApiService
-@inject IConfiguration Configuration
 @rendermode InteractiveServer
 
 <PageTitle>Debug Info</PageTitle>
@@ -38,40 +35,3 @@ else
 
 <button class="btn btn-primary" @onclick="TestApi">Test API</button>
 
-@code {
-    private bool isLoading = false;
-    private string? errorMessage;
-    private int vehicleCount = 0;
-    private string? responseData;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await TestApi();
-    }
-
-    private async Task TestApi()
-    {
-        isLoading = true;
-        errorMessage = null;
-        responseData = null;
-
-        try
-        {
-            var vehicles = await ApiService.GetVehiclesAsync();
-            vehicleCount = vehicles?.Count ?? 0;
-            responseData = System.Text.Json.JsonSerializer.Serialize(vehicles, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"{ex.GetType().Name}: {ex.Message}\n\nStack Trace:\n{ex.StackTrace}";
-            if (ex.InnerException != null)
-            {
-                errorMessage += $"\n\nInner Exception:\n{ex.InnerException.GetType().Name}: {ex.InnerException.Message}";
-            }
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-}
