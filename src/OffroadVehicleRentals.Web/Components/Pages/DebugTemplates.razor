@@ -1,7 +1,5 @@
 @page "/debug-templates"
 @using OffroadVehicleRentals.Shared.Models
-@using OffroadVehicleRentals.Web.Services
-@inject ApiService ApiService
 @rendermode InteractiveServer
 
 <PageTitle>Debug Templates</PageTitle>
@@ -72,38 +70,3 @@
     </div>
 }
 
-@code {
-    private List<ChecklistTemplate>? templates;
-    private string? rawJson;
-    private string? errorMessage;
-    private bool isLoading = false;
-
-    private async Task LoadTemplates()
-    {
-        isLoading = true;
-        errorMessage = null;
-        rawJson = null;
-        templates = null;
-        StateHasChanged();
-
-        try
-        {
-            // Use ApiService to load templates
-            templates = await ApiService.GetChecklistTemplatesAsync();
-            rawJson = $"Templates loaded: {templates?.Count ?? 0}";
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Exception: {ex.Message}\n\nStack Trace:\n{ex.StackTrace}";
-            if (ex.InnerException != null)
-            {
-                errorMessage += $"\n\nInner Exception: {ex.InnerException.Message}";
-            }
-        }
-        finally
-        {
-            isLoading = false;
-            StateHasChanged();
-        }
-    }
-}
