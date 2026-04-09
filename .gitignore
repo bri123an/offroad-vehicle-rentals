@@ -98,3 +98,4 @@ deployments/
 appsettings.local.json
 secrets.json
 test-deserialize.csx
+seed_db_extended.py
